@@ -13,7 +13,9 @@
 #define MY_GDB_DEBUGGER_DEBUGGER_H
 
 #include "debugger/break_point.h"
+#include "debugger/register.h"
 #include <cstdint>
+#include <sched.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -35,6 +37,7 @@ public:
      */
     void run();
 
+    ///TODO: 这里应该也可以直接直接 private
     /**
      * @brief 命令处理
      *
@@ -70,13 +73,72 @@ private:
 
     /**
      * @brief 在这个地址上设置断点
-     * 
+     *
      */
     void set_breakpoint_at_address(std::intptr_t addr);
 
+    /**
+     * @brief 得到寄存器的数值
+     *
+     * @param pid 进程号
+     * @param r 得到的寄存器
+     * @return uint64_t 寄存器上的数值
+     */
+    uint64_t get_register_value(pid_t pid, reg r);
+
+    /**
+     * @brief 设置寄存器上的数值
+     *
+     * @param pid 进程号
+     * @param r 寄存器
+     * @param value 数值
+     */
+    void set_register_value(pid_t pid, reg r, uint64_t value);
+
+    /**
+     * @brief 从 dwarf 编号上得到 寄存器的数据
+     *
+     * @param pid 进程号
+     * @param reg_num  寄存器的 dwarf 编号
+     * @return uint64_t 数据
+     */
+    uint64_t get_register_value_from_dwarf_register(pid_t pid, unsigned reg_num);
+
+    /**
+     * @brief 得到寄存器的信息
+     * 
+     * @param r 哪一个寄存器
+     * @return std::string 信息
+     */
+    std::string get_register_name(reg r);
+
+    reg get_register_from_name(const std::string& name);
+
+    /**
+     * @brief 打印出所有寄存器的数据
+     * 
+     */
+    void dump_all_registers_values();
+
+    /**
+     * @brief 读某一地址上的数值
+     * 
+     * @param address 地址
+     * @return uint64_t 数值
+     */
+    uint64_t read_memory(uint64_t address);
+
+    /**
+     * @brief 写入数值
+     * 
+     * @param address 地址
+     * @param value 数值
+     */
+    void write_memory(uint64_t address, uint64_t value);
+
 private:
-    std::string m_program_name {}; ///< 调试项目的名称
-    pid_t m_pid { 0 };             ///< 调试项目的进程号
+    std::string m_program_name {};                                ///< 调试项目的名称
+    pid_t m_pid { 0 };                                            ///< 调试项目的进程号
     std::unordered_map<std::intptr_t, BreakPoint> m_break_points; ///< 断点集合 <k, v>: 地址，和断点
 };
 } // namespace my_gdb

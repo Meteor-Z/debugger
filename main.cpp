@@ -1,3 +1,4 @@
+#include "sys/personality.h"
 #include <cstdio>
 #include <sched.h>
 #include <sys/ptrace.h>
@@ -19,6 +20,7 @@ int main(int argc, char* argv[]) {
 
     // childen
     if (pid == 0) {
+         personality(ADDR_NO_RANDOMIZE);
         // extern long int ptrace (enum __ptrace_request __request, ...);
         // 设置跟踪状态
         ptrace(PTRACE_TRACEME, 0, nullptr, nullptr);
