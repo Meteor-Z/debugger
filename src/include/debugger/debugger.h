@@ -22,7 +22,6 @@
 #include "debugger/register.h"
 #include "debugger/break_point.h"
 
-
 namespace my_gdb {
 class Debugger {
 public:
@@ -165,7 +164,8 @@ private:
     std::string m_program_name {};                                ///< 调试项目的名称
     pid_t m_pid { 0 };                                            ///< 调试项目的进程号
     std::unordered_map<std::intptr_t, BreakPoint> m_break_points; ///< 断点集合 <k, v>: 地址，和断点
-    
+    dwarf::dwarf m_dwarf {};                                      ///< dwarf
+    elf::elf m_elf {}; ///< elf文件
 };
 } // namespace my_gdb
 
