@@ -12,13 +12,16 @@
 #ifndef MY_GDB_DEBUGGER_DEBUGGER_H
 #define MY_GDB_DEBUGGER_DEBUGGER_H
 
-#include "debugger/break_point.h"
-#include "debugger/register.h"
-#include <cstdint>
 #include <sched.h>
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "libelfin/dwarf/dwarf++.hh"
+#include "libelfin/elf//elf++.hh"
+#include "debugger/register.h"
+#include "debugger/break_point.h"
+
 
 namespace my_gdb {
 class Debugger {
@@ -37,7 +40,7 @@ public:
      */
     void run();
 
-    ///TODO: 这里应该也可以直接直接 private
+    /// TODO: 这里应该也可以直接直接 private
     /**
      * @brief 命令处理
      *
@@ -106,7 +109,7 @@ private:
 
     /**
      * @brief 得到寄存器的信息
-     * 
+     *
      * @param r 哪一个寄存器
      * @return std::string 信息
      */
@@ -116,13 +119,13 @@ private:
 
     /**
      * @brief 打印出所有寄存器的数据
-     * 
+     *
      */
     void dump_all_registers_values();
 
     /**
      * @brief 读某一地址上的数值
-     * 
+     *
      * @param address 地址
      * @return uint64_t 数值
      */
@@ -130,16 +133,39 @@ private:
 
     /**
      * @brief 写入数值
-     * 
+     *
      * @param address 地址
      * @param value 数值
      */
     void write_memory(uint64_t address, uint64_t value);
 
+    /**
+     * @brief 得到 pc 寄存器的数值
+     *
+     * @return uint64_t pc寄存器的数值
+     */
+    uint64_t get_pc_register();
+
+    /**
+     * @brief 设置 pc register 的数值
+     *
+     * @param value 数值
+     */
+    void set_pc_register(uint64_t value);
+
+    /**
+     * @brief 跳过断点
+     *
+     */
+    void step_over_breakpoint();
+
+    void wait_for_signal();
+
 private:
     std::string m_program_name {};                                ///< 调试项目的名称
     pid_t m_pid { 0 };                                            ///< 调试项目的进程号
     std::unordered_map<std::intptr_t, BreakPoint> m_break_points; ///< 断点集合 <k, v>: 地址，和断点
+    
 };
 } // namespace my_gdb
 

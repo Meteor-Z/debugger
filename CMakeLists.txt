@@ -24,7 +24,7 @@ set(CMAKE_BUILD_TYPE "Debug")
 # 设置调试的指令
 add_compile_options(-Wall -Wextra -Wshadow -Wpedantic) # fsanitize=undefined -fsanitize=address
 
-# 加入linenoise的头文件，这样可能出现偏差，但是我觉得还行（
+# 加入linenoise 和 libelfin 的头文件，这样可能出现偏差，但是我觉得还行（
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
 
 add_library(linenoise_libs STATIC
