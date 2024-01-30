@@ -2,6 +2,7 @@
 #include <cstring>
 #include <fcntl.h>
 #include <iterator>
+#include <memory>
 #include <sys/user.h>
 #include "fmt/base.h"
 #include "sys/ptrace.h"
@@ -83,6 +84,10 @@ void Debugger::handle_command(const std::string& line) {
             write_memory(std::stol(addr, 0, 16), std::stol(val, 0, 16));
         }
 
+    } else if (is_prefix(command, "stepi")) {
+        signle_step_instruction_with_breakpoint_check();
+        auto line_entry = get_line_entry_from_pc(get_pc_register());
+        print_source(line_entry->file->path, line_entry->line);
     } else {
         std::cerr << "unknown command" << std::endl;
     }
@@ -320,4 +325,56 @@ void Debugger::handle_sigtrap(siginfo_t sign_info) {
         return;
     }
 }
+void Debugger::step_in() {
+    auto line = get_line_entry_from_pc(get_offset_pc())->line;
+
+    while (line == get_line_entry_from_pc(get_offset_pc())->line) {
+        signle_step_instruction_with_breakpoint_check();
+    }
+
+    auto line_entry = get_line_entry_from_pc(get_offset_pc());
+    print_source(line_entry->file->path, line_entry->line);
+}
+
+uint64_t Debugger::get_offset_pc() { return offset_load_address(get_pc_register()); };
+
+void Debugger::signle_step_instruction() {
+    // 单步执行
+    ptrace(PTRACE_SINGLESTEP, m_pid, nullptr, nullptr);
+    wait_for_signal();
+}
+void Debugger::signle_step_instruction_with_breakpoint_check() {
+    if (m_break_points.count(get_pc_register())) {
+        step_over_breakpoint();
+    } else {
+        signle_step_instruction();
+    }
+}
+
+void Debugger::step_out() {
+    auto frame_pointer = get_register_value(m_pid, reg::rbp);
+    auto return_address = read_memory(frame_pointer + 8);
+
+    bool should_remove_breakpoints = false;
+    if (!m_break_points.count(return_address)) {
+        set_breakpoint_at_address(return_address);
+        should_remove_breakpoints = true;
+    }
+
+    continue_execution();
+    if (should_remove_breakpoints) {
+        remove_breakpoints(return_address);
+    }
+}
+
+void Debugger::remove_breakpoints(std::intptr_t addr) {
+    if (m_break_points.count(addr)) {
+        if (m_break_points[addr].is_enable()) {
+            m_break_points[addr].disable();
+        }
+    }
+
+    m_break_points.erase(addr);
+}
+
 } // namespace my_gdb

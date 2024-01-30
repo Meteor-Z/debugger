@@ -9,6 +9,7 @@
 
 - [linenoise](https://github.com/antirez/linenoise)
 - [libelfin ](https://github.com/TartanLlama/libelfin/tree/fbreg)
+  - 目前还没有找到好用的库，这个库不支持最新版本的`DWARF 5`，所以调试的是一定要加入参数 `-gdwarf-2`
 
 ## 参考资料
 

@@ -165,8 +165,8 @@ private:
 
     /**
      * @brief 得到子进程发送的信息
-     * 
-     * @return siginfo_t 
+     *
+     * @return siginfo_t
      */
     siginfo_t get_signal_info();
 
@@ -177,13 +177,13 @@ private:
 
     /**
      * @brief 加载 基地址
-     * 
+     *
      */
     void init_load_address();
-    
+
     /**
      * @brief 进行一定的偏移
-     * 
+     *
      * @param addr 虚拟地址
      * @return uint64_t 基地址
      */
@@ -191,19 +191,40 @@ private:
 
     /**
      * @brief 打印源代码
-     * 
-     * @param file_name 
-     * @param line 
-     * @param lines_context_number 
+     *
+     * @param file_name
+     * @param line
+     * @param lines_context_number
      */
     void print_source(const std::string& file_name, unsigned line, unsigned lines_context_number = 2);
 
     /**
      * @brief 处理信息
-     * 
-     * @param sign_info 
+     *
+     * @param sign_info
      */
     void handle_sigtrap(siginfo_t sign_info);
+
+    /**
+     * @brief 单步执行
+     *
+     */
+    void signle_step_instruction();
+
+    void signle_step_instruction_with_breakpoint_check();
+
+    void step_in();
+
+    void step_out();
+
+    /**
+     * @brief 移除
+     *
+     * @param addr
+     */
+    void remove_breakpoints(std::intptr_t addr);
+
+    uint64_t get_offset_pc();
 
 private:
     std::string m_program_name {};                                ///< 调试项目的名称
