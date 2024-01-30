@@ -4,7 +4,7 @@
 
 namespace my_gdb {
 
-BreakPoint::BreakPoint(pid_t pid, std::intptr_t addr) : m_pid(pid), m_addr(addr), m_enabled(false), m_saved_data() {}
+BreakPoint::BreakPoint(pid_t pid, std::intptr_t addr) : m_pid(pid), m_addr(addr), m_enabled(false), m_saved_data {} {}
 
 void BreakPoint::enable() {
 

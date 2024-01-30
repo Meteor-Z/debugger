@@ -4,11 +4,11 @@
  * @brief 断点
  * @version 0.1
  * @date 2024-01-28
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
- 
+
 #pragma once
 
 #include <cmath>
@@ -20,6 +20,7 @@
 namespace my_gdb {
 class BreakPoint {
 public:
+    BreakPoint() = default;
     BreakPoint(pid_t pid, std::intptr_t addr);
 
     /**

@@ -31,12 +31,16 @@ add_library(linenoise_libs STATIC
     ${CMAKE_SOURCE_DIR}/third_party/linenoise/linenoise.c
 )
 
+
+
+
 add_subdirectory(third_party/fmt)
 # fmt头文件
 include_directories(${CMAKE_SOURCE_DIR}/third_party/fmt/include)
 
 add_library(my_gdb_libs STATIC 
     ${CMAKE_SOURCE_DIR}/src/debugger/debugger.cc
+    ${CMAKE_SOURCE_DIR}/src/debugger/break_point.cc
 )
 
 add_executable(my_gdb main.cpp)
@@ -47,3 +51,6 @@ add_executable(my_gdb main.cpp)
 target_link_libraries(my_gdb PRIVATE my_gdb_libs)
 target_link_libraries(my_gdb PRIVATE linenoise_libs)
 target_link_libraries(my_gdb PRIVATE fmt)
+target_link_libraries(my_gdb PRIVATE /usr/local/lib/libelf++.so)
+target_link_libraries(my_gdb PRIVATE /usr/local/lib/libdwarf++.so)
+

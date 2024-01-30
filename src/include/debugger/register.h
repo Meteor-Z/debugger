@@ -1,13 +1,14 @@
 #pragma once
 
-#include <iterator>
 #ifndef MY_GDB_DEBUGGER_REGISTER_H
 #define MY_GDB_DEBUGGER_REGISTER_H
 
+#include <iterator>
 #include <cstddef>
 #include <string>
 #include <array>
 
+namespace my_gdb {
 /**
  * @brief 各个寄存器
  *
@@ -48,16 +49,16 @@ constexpr size_t registers_number { 27 }; ///< 27 个寄存器
  *
  */
 struct RegisterDescriptor {
-    reg m_reg;          ///< 哪一个寄存器
-    int m_dwarf_r;      ///< 寄存器 dwarf 编号
-    std::string m_name; ///< 名称
+    reg r;            ///< 哪一个寄存器
+    int dwarf_r;      ///< 寄存器 dwarf 编号
+    std::string name; ///< 名称
 };
 
 /**
  * @brief 描述符的对应关系
  * @note 根据此struct user_regs_struct 生成
  */
-const std::array<RegisterDescriptor, registers_number> g_register_descriptors { {
+inline const std::array<RegisterDescriptor, registers_number> g_register_descriptors { {
     { reg::r15, 15, "r15" },
     { reg::r14, 14, "r14" },
     { reg::r13, 13, "r13" },
@@ -87,4 +88,5 @@ const std::array<RegisterDescriptor, registers_number> g_register_descriptors { 
     { reg::gs, 55, "gs" },
 } };
 
+} // namespace my_gdb
 #endif

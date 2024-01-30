@@ -12,11 +12,14 @@
 #ifndef MY_GDB_DEBUGGER_DEBUGGER_H
 #define MY_GDB_DEBUGGER_DEBUGGER_H
 
+#include <bits/types/siginfo_t.h>
 #include <sched.h>
 #include <cstdint>
 #include <string>
+#include <sys/types.h>
 #include <unordered_map>
 #include <vector>
+#include "common/log.h"
 #include "libelfin/dwarf/dwarf++.hh"
 #include "libelfin/elf//elf++.hh"
 #include "debugger/register.h"
@@ -160,12 +163,55 @@ private:
 
     void wait_for_signal();
 
+    /**
+     * @brief 得到子进程发送的信息
+     * 
+     * @return siginfo_t 
+     */
+    siginfo_t get_signal_info();
+
+    /// TODO: 这里可以进行一定的预处理，处理一遍，然后O（1）拿
+    dwarf::die get_function_from_pc_register(uint64_t pc);
+
+    dwarf::line_table::iterator get_line_entry_from_pc(uint64_t pc);
+
+    /**
+     * @brief 加载 基地址
+     * 
+     */
+    void init_load_address();
+    
+    /**
+     * @brief 进行一定的偏移
+     * 
+     * @param addr 虚拟地址
+     * @return uint64_t 基地址
+     */
+    uint64_t offset_load_address(uint64_t addr);
+
+    /**
+     * @brief 打印源代码
+     * 
+     * @param file_name 
+     * @param line 
+     * @param lines_context_number 
+     */
+    void print_source(const std::string& file_name, unsigned line, unsigned lines_context_number = 2);
+
+    /**
+     * @brief 处理信息
+     * 
+     * @param sign_info 
+     */
+    void handle_sigtrap(siginfo_t sign_info);
+
 private:
     std::string m_program_name {};                                ///< 调试项目的名称
     pid_t m_pid { 0 };                                            ///< 调试项目的进程号
     std::unordered_map<std::intptr_t, BreakPoint> m_break_points; ///< 断点集合 <k, v>: 地址，和断点
     dwarf::dwarf m_dwarf {};                                      ///< dwarf
-    elf::elf m_elf {}; ///< elf文件
+    elf::elf m_elf {};                                            ///< elf文件
+    uint64_t m_load_address {};                                   ///< 偏移的地址
 };
 } // namespace my_gdb
 
