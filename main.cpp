@@ -1,7 +1,6 @@
 #include "sys/personality.h"
 #include <sys/ptrace.h>
 #include <unistd.h>
-#include <stdio.h>
 #include <sched.h>
 #include <iostream>
 #include "common/log.h"

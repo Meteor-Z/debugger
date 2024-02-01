@@ -1,5 +1,4 @@
 #include <bits/types/siginfo_t.h>
-#include <cstring>
 #include <fcntl.h>
 #include <iterator>
 #include <memory>
@@ -9,12 +8,12 @@
 #include <cstdint>
 #include <sys/wait.h>
 #include <algorithm>
-#include <functional>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include "fmt/format.h"
 #include "libelfin/dwarf/dwarf++.hh"
 #include "libelfin/elf/data.hh"
@@ -26,6 +25,42 @@
 #include "debugger/register.h"
 
 namespace my_gdb {
+
+std::string to_string(SymbolType symboltype) {
+    switch (symboltype) {
+    case my_gdb::SymbolType::NOType:
+        return "notype";
+    case my_gdb::SymbolType::File:
+        return "file";
+    case my_gdb::SymbolType::Func:
+        return "func";
+    case my_gdb::SymbolType::Object:
+        return "object";
+    case my_gdb::SymbolType::Section:
+        return "section";
+    }
+    return "nullptr";
+}
+
+SymbolType to_symbol_type(elf::stt sym) {
+    switch (sym) {
+    case elf::stt::notype:
+        return SymbolType::NOType;
+    case elf::stt::object:
+        return SymbolType::Object;
+    case elf::stt::func:
+        return SymbolType::Func;
+    case elf::stt::section:
+        return SymbolType::Section;
+    case elf::stt::file:
+        return SymbolType::File;
+    default:
+        return SymbolType::NOType;
+    }
+    // default
+    return SymbolType::NOType;
+}
+
 Debugger::Debugger(const std::string& program_name, pid_t pid) : m_program_name(program_name), m_pid(pid) {
     int fd = open(m_program_name.c_str(), O_RDONLY);
 
@@ -61,10 +96,16 @@ void Debugger::handle_command(const std::string& line) {
         DEBUG_LOG("from gdb: continue");
         continue_execution();
     } else if (is_prefix(command, "break")) {
-        // 0x开头，那么就是后面的
-        std::string addr { args[1], 2 };
-        // 从0位开始，然后 base 是 16
-        set_breakpoint_at_address(std::stol(addr, 0, 16));
+        if (args[1][0] == '0' && args[1][1] == 'x') {
+            std::string addr { args[1], 2 };
+            set_breakpoint_at_address(std::stol(addr, 0, 16));
+
+        } else if (args[1].find(':') != std::string::npos) {
+            auto file_and_line = spilt(args[1], ':');
+            set_breakpoint_at_souce_line(file_and_line[0], std::stoi(file_and_line[1]));
+        } else {
+            set_breakpoint_at_function(args[1]);
+        }
     } else if (is_prefix(command, "register")) {
         if (is_prefix(args[1], "dump")) {
             dump_all_registers_values();
@@ -160,8 +201,9 @@ void Debugger::set_register_value(pid_t pid, reg r, uint64_t value) {
 }
 
 uint64_t Debugger::get_register_value_from_dwarf_register(pid_t pid, unsigned reg_num) {
-    auto item = std::find_if(begin(g_register_descriptors), end(g_register_descriptors),
-                             [reg_num](RegisterDescriptor rd) -> bool { return rd.dwarf_r == reg_num; });
+    auto item =
+        std::find_if(begin(g_register_descriptors), end(g_register_descriptors),
+                     [reg_num](RegisterDescriptor rd) -> bool { return rd.dwarf_r == static_cast<int>(reg_num); });
     if (item == std::end(g_register_descriptors)) {
         /// TODO: 错误处理
     }
@@ -376,5 +418,54 @@ void Debugger::remove_breakpoints(std::intptr_t addr) {
 
     m_break_points.erase(addr);
 }
+// 看 DW_AT_low_pc 上看最低的（也就是初始地址）来设置断点
+void Debugger::set_breakpoint_at_function(const std::string& name) {
+    for (const auto& cu : m_dwarf.compilation_units()) {
+        for (const auto& die : cu.root()) {
+            if (die.has(dwarf::DW_AT::name) && at_name(die) == name) {
+                auto low_pc = dwarf::at_low_pc(die);
+                auto entry = get_line_entry_from_pc(low_pc);
 
+                // 跳过序言
+                entry++;
+
+                set_breakpoint_at_address(offset_dwarf_address(entry->address));
+            }
+        }
+    }
+}
+
+uint64_t Debugger::offset_dwarf_address(uint64_t addr) { return addr + m_load_address; }
+
+void Debugger::set_breakpoint_at_souce_line(const std::string& file, unsigned line) {
+    for (const auto& cu : m_dwarf.compilation_units()) {
+        if (is_prefix(file, dwarf::at_name(cu.root()))) {
+            const auto& lt = cu.get_line_table();
+
+            for (const auto& entry : lt) {
+                if (entry.is_stmt && entry.line == line) {
+                    set_breakpoint_at_address(offset_dwarf_address(entry.address));
+                    return;
+                }
+            }
+        }
+    }
+}
+std::vector<Symbol> Debugger::lookup_symbol(const std::string& name) {
+    std::vector<Symbol> ans;
+
+    for (auto& sec : m_elf.sections()) {
+        if (sec.get_hdr().type != elf::sht::symtab && sec.get_hdr().type != elf::sht::dynsym) {
+            continue;
+        }
+
+        for (auto sym : sec.as_symtab()) {
+            if (sym.get_name() == name) {
+                auto& d = sym.get_data();
+                ans.push_back(Symbol { to_symbol_type(d.type()), sym.get_name(), d.value });
+            }
+        }
+    }
+    return ans;
+}
 } // namespace my_gdb

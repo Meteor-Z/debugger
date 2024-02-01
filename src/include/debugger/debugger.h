@@ -19,13 +19,27 @@
 #include <sys/types.h>
 #include <unordered_map>
 #include <vector>
-#include "common/log.h"
 #include "libelfin/dwarf/dwarf++.hh"
 #include "libelfin/elf//elf++.hh"
 #include "debugger/register.h"
 #include "debugger/break_point.h"
 
 namespace my_gdb {
+
+enum class SymbolType {
+    NOType,
+    Object,  ///< 数据
+    Func,    ///< 函数
+    Section, ///<
+    File,
+};
+
+struct Symbol {
+    SymbolType type;
+    std::string name;
+    std::uintptr_t addr;
+};
+
 class Debugger {
 public:
     /**
@@ -225,6 +239,19 @@ private:
     void remove_breakpoints(std::intptr_t addr);
 
     uint64_t get_offset_pc();
+
+    uint64_t offset_dwarf_address(uint64_t addr);
+
+    /**
+     * @brief 在函数的起点设置断点
+     *
+     * @param name
+     */
+    void set_breakpoint_at_function(const std::string& name);
+
+    void set_breakpoint_at_souce_line(const std::string& file, unsigned line);
+
+    std::vector<Symbol> lookup_symbol(const std::string& name);
 
 private:
     std::string m_program_name {};                                ///< 调试项目的名称
