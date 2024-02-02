@@ -263,6 +263,13 @@ private:
 
     void read_variables();
 
+    /**
+     * @brief 停止子程序, 如果程序还没有停止，那么就给用户选择，是否可以停止进程
+     * 
+     */
+    void stop_subprogram();
+
+
 private:
     std::string m_program_name {};                                ///< 调试项目的名称
     pid_t m_pid { 0 };                                            ///< 调试项目的进程号

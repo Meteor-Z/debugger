@@ -91,8 +91,10 @@ void Debugger::handle_command(const std::string& line) {
     std::vector<std::string> args = spilt(line, ' ');
     // fmt::print("args = {}", args);
     std::string command = args[0];
-
-    if (is_prefix(command, "continue")) {
+    // 将程序停止
+    if (is_prefix(command, "quit")) {
+        stop_subprogram();
+    } else if (is_prefix(command, "continue")) {
         DEBUG_LOG("from gdb: continue");
         continue_execution();
     } else if (is_prefix(command, "break")) {
@@ -130,6 +132,7 @@ void Debugger::handle_command(const std::string& line) {
         auto line_entry = get_line_entry_from_pc(get_pc_register());
         print_source(line_entry->file->path, line_entry->line);
     } else if (is_prefix(command, "backtrace")) {
+        DEBUG_LOG("进入bt调用");
         print_backtrace();
     } else if (is_prefix(command, "variables")) {
         read_variables();
@@ -229,10 +232,9 @@ reg Debugger::get_register_from_name(const std::string& name) {
 }
 
 void Debugger::dump_all_registers_values() {
+    // 格式差不多是这样子的: r15             0x0000000000000000
     for (const auto& register_descriptor : g_register_descriptors) {
-        // 数据格式： 寄存器name : 数值
-        std::cout << register_descriptor.name << " 0x" << std::setfill('0') << std::setw(16) << std::hex
-                  << get_register_value(m_pid, register_descriptor.r) << std::endl;
+        fmt::print("{:<15} 0x{:016x}\n", register_descriptor.name, get_register_value(m_pid, register_descriptor.r));
     }
 }
 
@@ -283,6 +285,7 @@ siginfo_t Debugger::get_signal_info() {
     return info;
 }
 dwarf::die Debugger::get_function_from_pc_register(uint64_t pc) {
+    DEBUG_LOG("hello");
     // 全部开扫
     for (auto& cu : m_dwarf.compilation_units()) {
         // 如果包含 pc， 然后找这个tag,是否是包含 这个 pc
@@ -296,6 +299,7 @@ dwarf::die Debugger::get_function_from_pc_register(uint64_t pc) {
             }
         }
     }
+
     ERROR_LOG("can not find function");
     exit(0);
 }
@@ -305,11 +309,11 @@ dwarf::line_table::iterator Debugger::get_line_entry_from_pc(uint64_t pc) {
         if (dwarf::die_pc_range(cu.root()).contains(pc)) {
             auto& lt = cu.get_line_table();
             auto it = lt.find_address(pc);
-            if (it == lt.end()) {
+            if (it != lt.end()) {
+                return it;
+            } else {
                 ERROR_LOG("can not find line entry");
                 exit(-1);
-            } else {
-                return it;
             }
         }
     }
@@ -414,12 +418,9 @@ void Debugger::step_out() {
 }
 
 void Debugger::remove_breakpoints(std::intptr_t addr) {
-    if (m_break_points.count(addr)) {
-        if (m_break_points[addr].is_enable()) {
-            m_break_points[addr].disable();
-        }
+    if (m_break_points.at(addr).is_enable()) {
+        m_break_points.at(addr).disable();
     }
-
     m_break_points.erase(addr);
 }
 // 看 DW_AT_low_pc 上看最低的（也就是初始地址）来设置断点
@@ -480,13 +481,18 @@ void Debugger::print_backtrace() {
         frame_number++;
     };
 
+    DEBUG_LOG("YES");
+
     // 打印当前函数
     auto current_func = get_function_from_pc_register(offset_load_address(get_pc_register()));
     output_frame(current_func);
 
+    DEBUG_LOG("YES2");
+
     auto frame_pointer = get_register_value(m_pid, reg::rbp);
     auto return_address = read_memory(frame_pointer + 8);
 
+    DEBUG_LOG("YES3");
     // 递归打印出函数调用参数
     while (dwarf::at_name(current_func) != "main") {
         current_func = get_function_from_pc_register(offset_load_address(return_address));
@@ -497,7 +503,17 @@ void Debugger::print_backtrace() {
         return_address = read_memory(frame_pointer + 8);
     }
 }
-
+void Debugger::stop_subprogram() {
+    siginfo_t info {};
+    info = get_signal_info();
+    // 一直处于有断点的状态
+    fmt::println("info.si_signo = {}, info.si_code = {}", info.si_signo, info.si_code);
+    if (info.si_signo == SIGSTOP && info.si_code == SI_KERNEL) {
+        DEBUG_LOG("程序已经停止");
+    } else {
+        DEBUG_LOG("程序还没有停止");
+    }
+}
 void Debugger::read_variables() {
     // 当前函数
     auto func = get_function_from_pc_register(get_offset_pc());
@@ -514,18 +530,19 @@ void Debugger::read_variables() {
                     auto value = read_memory(result.value);
                     // std::cout << at_name(die) << " (0x" << std::hex << result.value << ") = " << value << std::endl;
                     fmt::println("{} (0x{}) = {}", dwarf::at_name(die), result.value, value);
+                    break;
                 }
-
                 case dwarf::expr_result::type::reg: {
                     auto value = get_register_value_from_dwarf_register(m_pid, result.value);
                     // std::cout << at_name(die) << " (reg " << result.value << ") = " << value << std::endl;
                     fmt::println("{} (reg: {}) = {}", dwarf::at_name(die), result.value, value);
                     break;
                 }
-
-                default:
+                default: {
                     ERROR_LOG("unhand varliable location");
                     exit(-1);
+                    break;
+                }
                 }
             }
         }
