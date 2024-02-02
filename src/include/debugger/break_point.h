@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include <cmath>
 #include <cstdint>
+#include <fcntl.h>
 
 #ifndef MY_GDB_DEBUGGER_BREAK_POINT_H
 #define MY_GDB_DEBUGGER_BREAK_POINT_H

@@ -1,10 +1,8 @@
 #include <bits/types/siginfo_t.h>
 #include <fcntl.h>
 #include <iterator>
-#include <memory>
 #include <sys/user.h>
-#include "fmt/base.h"
-#include "sys/ptrace.h"
+#include <sys/ptrace.h>
 #include <cstdint>
 #include <sys/wait.h>
 #include <algorithm>
@@ -14,7 +12,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "fmt/format.h"
+#include "fmt/base.h"
+#include "fmt/core.h"
 #include "libelfin/dwarf/dwarf++.hh"
 #include "libelfin/elf/data.hh"
 #include "libelfin/elf/elf++.hh"
@@ -129,7 +128,10 @@ void Debugger::handle_command(const std::string& line) {
         signle_step_instruction_with_breakpoint_check();
         auto line_entry = get_line_entry_from_pc(get_pc_register());
         print_source(line_entry->file->path, line_entry->line);
-    } else {
+    } else if (is_prefix(command, "backtrace")) {
+        print_backtrace();
+    }
+     else {
         std::cerr << "unknown command" << std::endl;
     }
 }
@@ -467,5 +469,29 @@ std::vector<Symbol> Debugger::lookup_symbol(const std::string& name) {
         }
     }
     return ans;
+}
+
+void Debugger::print_backtrace() {
+    auto output_frame = [frame_number = 0](auto&& func) mutable {
+        fmt::print("frame # {}: 0x {} {}", frame_number, dwarf::at_low_pc(func), dwarf::at_name(func));
+        frame_number++;
+    };
+
+    // 打印当前函数
+    auto current_func = get_function_from_pc_register(offset_load_address(get_pc_register()));
+    output_frame(current_func);
+
+    auto frame_pointer = get_register_value(m_pid, reg::rbp);
+    auto return_address = read_memory(frame_pointer + 8);
+
+    // 递归打印出函数调用参数
+    while (dwarf::at_name(current_func) != "main") {
+        current_func = get_function_from_pc_register(offset_load_address(return_address));
+        
+        output_frame(current_func);
+        
+        frame_pointer = read_memory(frame_pointer);
+        return_address = read_memory(frame_pointer + 8);    
+    }
 }
 } // namespace my_gdb

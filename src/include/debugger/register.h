@@ -3,7 +3,6 @@
 #ifndef MY_GDB_DEBUGGER_REGISTER_H
 #define MY_GDB_DEBUGGER_REGISTER_H
 
-#include <iterator>
 #include <cstddef>
 #include <string>
 #include <array>

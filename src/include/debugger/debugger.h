@@ -253,6 +253,12 @@ private:
 
     std::vector<Symbol> lookup_symbol(const std::string& name);
 
+    /**
+     * @brief 打印调用栈
+     *
+     */
+    void print_backtrace();
+
 private:
     std::string m_program_name {};                                ///< 调试项目的名称
     pid_t m_pid { 0 };                                            ///< 调试项目的进程号
