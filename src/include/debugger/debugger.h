@@ -41,6 +41,26 @@ struct Symbol {
 };
 
 class Debugger {
+
+public:
+    /**
+     * @brief 从 dwarf 编号上得到 寄存器的数据
+     *
+     * @param pid 进程号
+     * @param reg_num  寄存器的 dwarf 编号
+     * @return uint64_t 数据
+     */
+    static uint64_t get_register_value_from_dwarf_register(pid_t pid, unsigned reg_num);
+
+    /**
+     * @brief 得到寄存器的数值
+     *
+     * @param pid 进程号
+     * @param r 得到的寄存器
+     * @return uint64_t 寄存器上的数值
+     */
+    static uint64_t get_register_value(pid_t pid, reg r);
+
 public:
     /**
      * @brief Construct a new Debugger object
@@ -97,15 +117,6 @@ private:
     void set_breakpoint_at_address(std::intptr_t addr);
 
     /**
-     * @brief 得到寄存器的数值
-     *
-     * @param pid 进程号
-     * @param r 得到的寄存器
-     * @return uint64_t 寄存器上的数值
-     */
-    uint64_t get_register_value(pid_t pid, reg r);
-
-    /**
      * @brief 设置寄存器上的数值
      *
      * @param pid 进程号
@@ -113,15 +124,6 @@ private:
      * @param value 数值
      */
     void set_register_value(pid_t pid, reg r, uint64_t value);
-
-    /**
-     * @brief 从 dwarf 编号上得到 寄存器的数据
-     *
-     * @param pid 进程号
-     * @param reg_num  寄存器的 dwarf 编号
-     * @return uint64_t 数据
-     */
-    uint64_t get_register_value_from_dwarf_register(pid_t pid, unsigned reg_num);
 
     /**
      * @brief 得到寄存器的信息
@@ -258,6 +260,8 @@ private:
      *
      */
     void print_backtrace();
+
+    void read_variables();
 
 private:
     std::string m_program_name {};                                ///< 调试项目的名称

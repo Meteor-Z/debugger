@@ -41,6 +41,7 @@ include_directories(${CMAKE_SOURCE_DIR}/third_party/fmt/include)
 add_library(my_gdb_libs STATIC 
     ${CMAKE_SOURCE_DIR}/src/debugger/debugger.cc
     ${CMAKE_SOURCE_DIR}/src/debugger/break_point.cc
+    ${CMAKE_SOURCE_DIR}/src/debugger/ptrace_expr_context.cc
 )
 
 add_executable(my_gdb main.cpp)

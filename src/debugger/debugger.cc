@@ -12,6 +12,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "debugger/ptrace_expr_context.h"
 #include "fmt/base.h"
 #include "fmt/core.h"
 #include "libelfin/dwarf/dwarf++.hh"
@@ -130,8 +131,9 @@ void Debugger::handle_command(const std::string& line) {
         print_source(line_entry->file->path, line_entry->line);
     } else if (is_prefix(command, "backtrace")) {
         print_backtrace();
-    }
-     else {
+    } else if (is_prefix(command, "variables")) {
+        read_variables();
+    } else {
         std::cerr << "unknown command" << std::endl;
     }
 }
@@ -473,7 +475,8 @@ std::vector<Symbol> Debugger::lookup_symbol(const std::string& name) {
 
 void Debugger::print_backtrace() {
     auto output_frame = [frame_number = 0](auto&& func) mutable {
-        fmt::print("frame # {}: 0x {} {}", frame_number, dwarf::at_low_pc(func), dwarf::at_name(func));
+        /// TODO: 这里还需要进行改进
+        fmt::println("frame # {}: 0x {} {}()", frame_number, dwarf::at_low_pc(func), dwarf::at_name(func));
         frame_number++;
     };
 
@@ -487,11 +490,45 @@ void Debugger::print_backtrace() {
     // 递归打印出函数调用参数
     while (dwarf::at_name(current_func) != "main") {
         current_func = get_function_from_pc_register(offset_load_address(return_address));
-        
+
         output_frame(current_func);
-        
+
         frame_pointer = read_memory(frame_pointer);
-        return_address = read_memory(frame_pointer + 8);    
+        return_address = read_memory(frame_pointer + 8);
+    }
+}
+
+void Debugger::read_variables() {
+    // 当前函数
+    auto func = get_function_from_pc_register(get_offset_pc());
+    for (const auto& die : func) {
+        // 如果是变量
+        if (die.tag == dwarf::DW_TAG::variable) {
+            auto loc_val = die[dwarf::DW_AT::location];
+            if (loc_val.get_type() == dwarf::value::type::exprloc) {
+                PtraceExprContext context { m_pid };
+                auto result = loc_val.as_exprloc().evaluate(&context);
+
+                switch (result.location_type) {
+                case dwarf::expr_result::type::address: {
+                    auto value = read_memory(result.value);
+                    // std::cout << at_name(die) << " (0x" << std::hex << result.value << ") = " << value << std::endl;
+                    fmt::println("{} (0x{}) = {}", dwarf::at_name(die), result.value, value);
+                }
+
+                case dwarf::expr_result::type::reg: {
+                    auto value = get_register_value_from_dwarf_register(m_pid, result.value);
+                    // std::cout << at_name(die) << " (reg " << result.value << ") = " << value << std::endl;
+                    fmt::println("{} (reg: {}) = {}", dwarf::at_name(die), result.value, value);
+                    break;
+                }
+
+                default:
+                    ERROR_LOG("unhand varliable location");
+                    exit(-1);
+                }
+            }
+        }
     }
 }
 } // namespace my_gdb
