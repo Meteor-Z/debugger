@@ -7,7 +7,7 @@
 需要的两个库
 
 - [linenoise](https://github.com/antirez/linenoise)
-- [libelfin ](https://github.com/TartanLlama/libelfin/tree/fbreg)
+- [libelfin](https://github.com/TartanLlama/libelfin/tree/fbreg)
   - 目前还没有找到好用的库，这个库不支持最新版本的`DWARF 5`，所以调试的是一定要加入参数 `-gdwarf-3` or `gdwarf-4`
   - 安装的时候切换到这个`fbreg`的分支
   - 又发现了新问题，gcc13.2生成的版本很多都是`DWARF 5`, 导致直接寄了，这里还是直接使用 gcc 11版本吧（ubuntu 22.04）

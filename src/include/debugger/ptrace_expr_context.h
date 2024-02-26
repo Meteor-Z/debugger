@@ -10,7 +10,7 @@ class PtraceExprContext : public dwarf::expr_context {
 public:
     PtraceExprContext(pid_t pid);
     dwarf::taddr reg(unsigned reg_num) override;
-    dwarf::taddr pc() override;
+    dwarf::taddr pc();
     dwarf::taddr deref_size(dwarf::taddr address, unsigned size) override;
 private:
     pid_t m_pid;

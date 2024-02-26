@@ -2,3 +2,4 @@ build
 document
 .cache
 .vscode
+.xmake

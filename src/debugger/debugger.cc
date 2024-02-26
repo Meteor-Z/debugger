@@ -7,18 +7,17 @@
 #include <sys/wait.h>
 #include <algorithm>
 #include <iostream>
-#include <iomanip>
 #include <sstream>
 #include <fstream>
 #include <string>
 #include <vector>
 #include "debugger/ptrace_expr_context.h"
-#include "fmt/base.h"
 #include "fmt/core.h"
 #include "libelfin/dwarf/dwarf++.hh"
 #include "libelfin/elf/data.hh"
 #include "libelfin/elf/elf++.hh"
-#include "linenoise/linenoise.h"
+// #include "linenoise/linenoise.h"
+#include "linenoise.h"
 #include "common/log.h"
 #include "debugger/debugger.h"
 #include "debugger/break_point.h"

@@ -1,0 +1,31 @@
+[
+{
+  "directory": "/home/lzc/code/debugger",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Iinclude", "-Isrc/include", "-Ithird_party/linenoise", "-I", "/home/lzc/.xmake/packages/f/fmt/10.2.1/0327b556927c46fcabb4dbd6ed4fb632/include", "-o", "build/.objs/main/linux/x86_64/release/third_party/linenoise/linenoise.c.o", "third_party/linenoise/linenoise.c"],
+  "file": "third_party/linenoise/linenoise.c"
+},
+{
+  "directory": "/home/lzc/code/debugger",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Iinclude", "-Isrc/include", "-Ithird_party/linenoise", "-I", "/home/lzc/.xmake/packages/f/fmt/10.2.1/0327b556927c46fcabb4dbd6ed4fb632/include", "-o", "build/.objs/main/linux/x86_64/release/third_party/linenoise/example.c.o", "third_party/linenoise/example.c"],
+  "file": "third_party/linenoise/example.c"
+},
+{
+  "directory": "/home/lzc/code/debugger",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Iinclude", "-Isrc/include", "-Ithird_party/linenoise", "-I", "/home/lzc/.xmake/packages/f/fmt/10.2.1/0327b556927c46fcabb4dbd6ed4fb632/include", "-o", "build/.objs/main/linux/x86_64/release/main.cpp.o", "main.cpp"],
+  "file": "main.cpp"
+},
+{
+  "directory": "/home/lzc/code/debugger",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Iinclude", "-Isrc/include", "-Ithird_party/linenoise", "-I", "/home/lzc/.xmake/packages/f/fmt/10.2.1/0327b556927c46fcabb4dbd6ed4fb632/include", "-o", "build/.objs/main/linux/x86_64/release/src/debugger/ptrace_expr_context.cc.o", "src/debugger/ptrace_expr_context.cc"],
+  "file": "src/debugger/ptrace_expr_context.cc"
+},
+{
+  "directory": "/home/lzc/code/debugger",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Iinclude", "-Isrc/include", "-Ithird_party/linenoise", "-I", "/home/lzc/.xmake/packages/f/fmt/10.2.1/0327b556927c46fcabb4dbd6ed4fb632/include", "-o", "build/.objs/main/linux/x86_64/release/src/debugger/break_point.cc.o", "src/debugger/break_point.cc"],
+  "file": "src/debugger/break_point.cc"
+},
+{
+  "directory": "/home/lzc/code/debugger",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Iinclude", "-Isrc/include", "-Ithird_party/linenoise", "-I", "/home/lzc/.xmake/packages/f/fmt/10.2.1/0327b556927c46fcabb4dbd6ed4fb632/include", "-o", "build/.objs/main/linux/x86_64/release/src/debugger/debugger.cc.o", "src/debugger/debugger.cc"],
+  "file": "src/debugger/debugger.cc"
+}]
