@@ -1,9 +1,9 @@
 add_requires("fmt")
 
     target("main")
-    add_links("/usr/local/lib/libdwarf++.a")
-    add_links("/usr/local/lib/libelf++.a")
-    set_kind("binary") 
+    add_links("/usr/local/lib/libdwarf++.a")  -- 链接.a文件
+    add_links("/usr/local/lib/libelf++.a") -- 链接 .a 文件
+    set_kind("binary")  -- 设置
     add_includedirs("third_party/linenoise/")
     add_packages("fmt") 
     add_includedirs("src/include")
