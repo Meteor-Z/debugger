@@ -11,6 +11,10 @@ add_requires("fmt")
     add_files("third_party/linenoise/linenoise.c")
     add_files("src/debugger/*.cc")
 
+    -- 测试文件
+    target("demo_test_1")
+    set_kind("binary")
+    add_files("demo_test_1.cc")
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --
