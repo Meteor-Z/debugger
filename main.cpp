@@ -19,9 +19,9 @@ int main(int argc, char* argv[]) {
 
     // childen
     if (pid == 0) {
-         personality(ADDR_NO_RANDOMIZE);
+        personality(ADDR_NO_RANDOMIZE);
         // extern long int ptrace (enum __ptrace_request __request, ...);
-        // 设置跟踪状态
+        // 设置跟踪状态并且执行
         ptrace(PTRACE_TRACEME, 0, nullptr, nullptr);
         execl(program_name.c_str(), program_name.c_str(), nullptr);
     }
