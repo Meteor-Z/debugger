@@ -2,6 +2,7 @@
 #include "debugger/debugger.h"
 #include <sys/ptrace.h>
 #include <sys/user.h>
+
 namespace my_gdb {
 
 PtraceExprContext::PtraceExprContext(pid_t pid) : m_pid(pid) {}
