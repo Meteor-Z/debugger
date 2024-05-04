@@ -1,4 +1,3 @@
-#include <bits/types/siginfo_t.h>
 #include <fcntl.h>
 #include <iterator>
 #include <sys/user.h>
@@ -12,12 +11,12 @@
 #include <string>
 #include <vector>
 #include "debugger/ptrace_expr_context.h"
-#include "fmt/core.h"
 #include "libelfin/dwarf/dwarf++.hh"
 #include "libelfin/elf/data.hh"
 #include "libelfin/elf/elf++.hh"
 // #include "linenoise/linenoise.h"
 #include "linenoise.h"
+// #include "common/log.h"
 #include "common/log.h"
 #include "debugger/debugger.h"
 #include "debugger/break_point.h"
@@ -73,7 +72,7 @@ void Debugger::run() {
     char* line { nullptr };
 
     while ((line = linenoise("my_gdb> ")) != nullptr) {
-        DEBUG_LOG(fmt::format("line = {}", line));
+        // DEBUG_LOG(fmt::format("line = {}", line));
         handle_command(line);
         // 加上历史信息
         linenoiseHistoryAdd(line);
@@ -94,7 +93,6 @@ void Debugger::handle_command(const std::string& line) {
     if (is_prefix(command, "quit")) {
         stop_subprogram();
     } else if (is_prefix(command, "continue")) {
-        DEBUG_LOG("from gdb: continue");
         continue_execution();
     } else if (is_prefix(command, "break")) {
         if (args[1][0] == '0' && args[1][1] == 'x') {
@@ -131,7 +129,7 @@ void Debugger::handle_command(const std::string& line) {
         auto line_entry = get_line_entry_from_pc(get_pc_register());
         print_source(line_entry->file->path, line_entry->line);
     } else if (is_prefix(command, "backtrace")) {
-        DEBUG_LOG("进入bt调用");
+        std::cout << "进入bt调试" << std::endl;
         print_backtrace();
     } else if (is_prefix(command, "variables")) {
         read_variables();
@@ -506,11 +504,8 @@ void Debugger::stop_subprogram() {
     siginfo_t info {};
     info = get_signal_info();
     // 一直处于有断点的状态
-    fmt::println("info.si_signo = {}, info.si_code = {}", info.si_signo, info.si_code);
     if (info.si_signo == SIGSTOP && info.si_code == SI_KERNEL) {
-        DEBUG_LOG("程序已经停止");
     } else {
-        DEBUG_LOG("程序还没有停止");
     }
 }
 void Debugger::read_variables() {

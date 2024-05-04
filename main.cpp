@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <sched.h>
 #include <iostream>
-#include "common/log.h"
 #include "debugger/debugger.h"
 
 int main(int argc, char* argv[]) {
@@ -27,7 +26,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (pid > 0) {
-        DEBUG_LOG("start  to debugging");
+        std::cout << "开始Debug" << std::endl;
         my_gdb::Debugger gdb { program_name, pid };
         gdb.run();
     }
