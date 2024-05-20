@@ -1,9 +1,23 @@
-#include "sys/personality.h"
-#include <sys/ptrace.h>
-#include <unistd.h>
-#include <sched.h>
+#if defined (__linux__)
+    #include "sys/personality.h"
+    #include <sys/ptrace.h>
+    #include <unistd.h>
+    #include <sched.h>
+    #include "debugger/debugger.h"
+#endif
+
 #include <iostream>
-#include "debugger/debugger.h"
+
+#if defined(_WIN32)
+
+int main(int argc, char* argv[]) {
+    std::cout << "Hello Wolrd" << std::endl;
+}
+
+#endif
+
+#if defined (__linux__)
+
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -31,3 +45,5 @@ int main(int argc, char* argv[]) {
         gdb.run();
     }
 }
+
+#endif
