@@ -1,23 +1,46 @@
-#if defined (__linux__)
-    #include "sys/personality.h"
-    #include <sys/ptrace.h>
-    #include <unistd.h>
-    #include <sched.h>
-    #include "debugger/debugger.h"
+
+#if defined(__linux__)
+#include "sys/personality.h"
+#include <sys/ptrace.h>
+#include <unistd.h>
+#include <sched.h>
+#include "debugger/debugger.h"
 #endif
 
+#if defined(_WIN32)
+
+#include <Windows.h>
+#include <processthreadsapi.h>
+#include <errhandlingapi.h>
+#include <handleapi.h>
 #include <iostream>
+#include <winbase.h>
+#include <winnt.h>
+
+#endif
 
 #if defined(_WIN32)
 
 int main(int argc, char* argv[]) {
-    std::cout << "Hello Wolrd" << std::endl;
-}
+    STARTUPINFO si = { 0 };
+    si.cb = sizeof(si);
 
+    PROCESS_INFORMATION pi = { 0 };
+
+    if (CreateProcess(TEXT("C:\\windows\\notepade.exe"), NULL, NULL, NULL, FALSE,
+                      DEBUG_ONLY_THIS_PROCESS | CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi) == FALSE) {
+        std::wcout << TEXT("CreateProcess failed ") << GetLastError() << std::endl;
+        return -1;
+    }
+
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+
+    std::cout << "yes" << std::endl;
+}
 #endif
 
-#if defined (__linux__)
-
+#if defined(__linux__)
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
