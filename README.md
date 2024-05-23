@@ -1,20 +1,27 @@
 # debugger
 
-模仿GDB的 Mini C/C++ Debugger
+模仿GDB的 C/C++ Mini Debugger
+
+## 必要软件
+
+- vscode
+- cmake
+- clang/clangd
 
 ## 前提库
 
 需要的两个库
 
-- [linenoise](https://github.com/antirez/linenoise)
-  - 作为C/C++的一个小型输入的。两个文件，直接链接就能使用了
-- [libelfin](https://github.com/TartanLlama/libelfin/tree/fbreg)
-  - 目前还没有找到好用的库，这个库不支持最新版本的`DWARF 5`，所以调试的是一定要加入参数 `-gdwarf-3` or `gdwarf-4`
-  - 安装的时候切换到这个`fbreg`的分支
-  - 又发现了新问题，gcc13.2生成的版本很多都是`DWARF 5`, 导致直接寄了，这里还是直接使用 gcc 11版本吧（ubuntu 22.04）
-  - 有一些文件，建议自行编译安装到本地，然后进行链接
-- [fmt](https://github.com/fmtlib/fmt)
-  - 很平常的C/C++ 输出的库，主要是不想切换到C++20了
+- 在linux上
+  - [linenoise](https://github.com/antirez/linenoise)
+    - 作为C/C++的一个小型输入的。两个文件，直接链接就能使用了
+  - [libelfin](https://github.com/TartanLlama/libelfin/tree/fbreg)
+    - 目前还没有找到好用的库，这个库不支持最新版本的`DWARF 5`，所以调试的是一定要加入参数 `-gdwarf-3` or `gdwarf-4`
+    - 安装的时候切换到这个`fbreg`的分支
+    - 又发现了新问题，gcc13.2生成的版本很多都是`DWARF 5`, 导致直接寄了，这里还是直接使用 gcc 11版本吧（ubuntu 22.04）
+    - 有一些文件，建议自行编译安装到本地，然后进行链接
+  - [fmt](https://github.com/fmtlib/fmt)
+    - 很平常的C/C++ 输出的库，主要是不想切换到C++20了，但是也不想带这个库了，主要是还要编译相关的库，后面把这个去掉
 
 ## 内容文件信息
 

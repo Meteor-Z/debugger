@@ -21,13 +21,21 @@
 #if defined(_WIN32)
 
 int main(int argc, char* argv[]) {
-    STARTUPINFO si = { 0 };
+    STARTUPINFO si = {0};
     si.cb = sizeof(si);
 
-    PROCESS_INFORMATION pi = { 0 };
+    PROCESS_INFORMATION pi = {0};
 
-    if (CreateProcess(TEXT("C:\\windows\\notepade.exe"), NULL, NULL, NULL, FALSE,
-                      DEBUG_ONLY_THIS_PROCESS | CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi) == FALSE) {
+    if (CreateProcess(TEXT("C:\\windows\\notepade.exe"),
+                      NULL,
+                      NULL,
+                      NULL,
+                      FALSE,
+                      DEBUG_ONLY_THIS_PROCESS | CREATE_NEW_CONSOLE,
+                      NULL,
+                      NULL,
+                      &si,
+                      &pi) == FALSE) {
         std::wcout << TEXT("CreateProcess failed ") << GetLastError() << std::endl;
         return -1;
     }
@@ -47,7 +55,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    std::string program_name { argv[1] };
+    std::string program_name{argv[1]};
     pid_t pid = fork();
 
     // std::cout << argv[1] << std::endl;
@@ -63,7 +71,7 @@ int main(int argc, char* argv[]) {
 
     if (pid > 0) {
         std::cout << "开始Debug" << std::endl;
-        my_gdb::Debugger gdb { program_name, pid };
+        my_gdb::Debugger gdb{program_name, pid};
         gdb.run();
     }
 }
