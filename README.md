@@ -2,6 +2,9 @@
 
 模仿GDB的 C/C++ Mini Debugger
 
+> Windows上还没有解决相关路径的问题, 搞完相关的再弄吧
+> Windows上相关原理还没搞清楚
+
 ## 必要软件
 
 - vscode
@@ -12,6 +15,8 @@
 
 需要的两个库
 
+- 在Windows上
+  - 目前还没有
 - 在linux上
   - [linenoise](https://github.com/antirez/linenoise)
     - 作为C/C++的一个小型输入的。两个文件，直接链接就能使用了

@@ -1,13 +1,12 @@
 
-#include <memoryapi.h>
-#include <minwindef.h>
-#include <oleidl.h>
 #if defined(__linux__)
+
 #include "sys/personality.h"
 #include <sys/ptrace.h>
 #include <unistd.h>
 #include <sched.h>
 #include "debugger/debugger.h"
+
 #endif
 
 #if defined(_WIN32)
@@ -21,24 +20,14 @@
 #include <iostream>
 #include <winbase.h>
 #include <winnt.h>
+#include <memoryapi.h>
+#include <minwindef.h>
+#include <oleidl.h>
+#include "src/windows/include/debugger/windows_debugger.h"
 
 #endif
 
 #if defined(_WIN32)
-
-void OnProcessCreated(const CREATE_PROCESS_DEBUG_INFO*);
-void OnThreadCreated(const CREATE_THREAD_DEBUG_INFO*);
-void OnException(const EXCEPTION_DEBUG_INFO*);
-void OnProcessExited(const EXIT_PROCESS_DEBUG_INFO*);
-void OnThreadExited(const EXIT_THREAD_DEBUG_INFO*);
-void OnOutputDebugString(const OUTPUT_DEBUG_STRING_INFO* info) {
-    BYTE* buffer = (BYTE*)malloc(info->nDebugStringLength);
-    SIZE_T byte_read;
-    ReadProcessMemory(HANDLE hProcess, LPCVOID lpBaseAddress, LPVOID lpBuffer, SIZE_T nSize, SIZE_T *lpNumberOfBytesRead)
-}
-void OnRipEvent(const RIP_INFO*);
-void OnDllLoaded(const LOAD_DLL_DEBUG_INFO*);
-void OnDllUnloaded(const UNLOAD_DLL_DEBUG_INFO*);
 
 int main(int argc, char* argv[]) {
     STARTUPINFO si = {0};
@@ -65,34 +54,36 @@ int main(int argc, char* argv[]) {
     bool wait_event = true;
     DEBUG_EVENT debug_event{}; // 调试事件
 
+    debugger::WindowsDebugger debugger{pi.hProcess};
+
     // 循环
     while (wait_event == true && WaitForDebugEvent(&debug_event, INFINITE)) {
 
         switch (debug_event.dwDebugEventCode) {
         case CREATE_PROCESS_DEBUG_EVENT:
-            OnProcessCreated(&debug_event.u.CreateProcessInfo);
+            debugger.OnProcessCreated(&debug_event.u.CreateProcessInfo);
             break;
         case CREATE_THREAD_DEBUG_EVENT:
-            OnThreadCreated(&debug_event.u.CreateThread);
+            debugger.OnThreadCreated(&debug_event.u.CreateThread);
             break;
         case EXCEPTION_DEBUG_EVENT:
-            OnException(&debug_event.u.Exception);
+            debugger.OnException(&debug_event.u.Exception);
             break;
         case EXIT_PROCESS_DEBUG_EVENT:
-            OnProcessExited(&debug_event.u.ExitProcess);
+            debugger.OnProcessExited(&debug_event.u.ExitProcess);
             wait_event = false;
             break;
         case LOAD_DLL_DEBUG_EVENT:
-            OnDllLoaded(&debug_event.u.LoadDll);
+            debugger.OnDllLoaded(&debug_event.u.LoadDll);
             break;
         case UNLOAD_DLL_DEBUG_EVENT:
-            OnDllUnloaded(&debug_event.u.UnloadDll);
+            debugger.OnDllUnloaded(&debug_event.u.UnloadDll);
             break;
         case OUTPUT_DEBUG_STRING_EVENT:
-            OnOutputDebugString(&debug_event.u.DebugString);
+            debugger.OnOutputDebugString(&debug_event.u.DebugString);
             break;
         case RIP_EVENT:
-            OnRipEvent(&debug_event.u.RipInfo);
+            debugger.OnRipEvent(&debug_event.u.RipInfo);
             break;
         default:
             std::wcout << TEXT("Unknown debug event.") << std::endl;

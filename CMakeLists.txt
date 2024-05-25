@@ -25,7 +25,16 @@ set(CMAKE_BUILD_TYPE "Debug")
 # 设置调试的指令
 if (MSVC)
     add_compile_options(/W4)
-    add_executable(main main.cpp)
+    add_executable(debugger main.cpp)
+
+    add_library(debugger_libs STATIC 
+    ${CMAKE_SOURCE_DIR}/src/windows/debugger/windows_debugger.cc
+    # ${CMAKE_SOURCE_DIR}/src/debugger/break_point.cc
+    # ${CMAKE_SOURCE_DIR}/src/debugger/ptrace_expr_context.cc
+    )
+
+    target_link_libraries(debugger PRIVATE debugger_libs)
+
 else()
     add_compile_options(-Wall -Wextra -Wshadow -Wpedantic) # fsanitize=undefined -fsanitize=address
     # add_compile_options(-Wall -Wextra)
