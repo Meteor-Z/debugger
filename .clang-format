@@ -23,10 +23,16 @@ ReflowComments: true
 # 对齐连续的尾随的注释
 AlignTrailingComments: true
 
-ColumnLimit: 120
+ColumnLimit: 80
 
-AlignAfterOpenBracket: Align
-AllowAllArgumentsOnNextLine: true
-AllowAllParametersOfDeclarationOnNextLine: true
+# AlignAfterOpenBracket: Align
+# AllowAllArgumentsOnNextLine: true
+# AllowAllParametersOfDeclarationOnNextLine: true
+# BinPackArguments: false
+# BinPackParameters: false
+
+# BasedOnStyle: llvm
+# IndentWidth: 4
 BinPackArguments: false
-BinPackParameters: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AlignAfterOpenBracket: DontAlign

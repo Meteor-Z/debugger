@@ -25,7 +25,12 @@ public:
     void OnException(const EXCEPTION_DEBUG_INFO*);
     void OnProcessExited(const EXIT_PROCESS_DEBUG_INFO*);
     void OnThreadExited(const EXIT_THREAD_DEBUG_INFO*);
-    void OnOutputDebugString(const OUTPUT_DEBUG_STRING_INFO* info);
+    /**
+     * @brief 调用 Output Debug String 的时候就会触发这类事件
+     *
+     * @param info
+     */
+    void on_output_debug_string(const OUTPUT_DEBUG_STRING_INFO* info);
     void OnRipEvent(const RIP_INFO*);
     void OnDllLoaded(const LOAD_DLL_DEBUG_INFO*);
     void OnDllUnloaded(const UNLOAD_DLL_DEBUG_INFO*);

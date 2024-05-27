@@ -1,4 +1,3 @@
-
 #if defined(__linux__)
 
 #include "sys/personality.h"
@@ -12,18 +11,19 @@
 #if defined(_WIN32)
 
 #include <Windows.h>
+#include <winuser.h>
 #include <debugapi.h>
 #include <minwinbase.h>
 #include <processthreadsapi.h>
 #include <errhandlingapi.h>
 #include <handleapi.h>
-#include <iostream>
 #include <winbase.h>
 #include <winnt.h>
 #include <memoryapi.h>
 #include <minwindef.h>
 #include <oleidl.h>
 #include "src/windows/include/debugger/windows_debugger.h"
+#include <iostream>
 
 #endif
 
@@ -32,11 +32,9 @@
 int main(int argc, char* argv[]) {
     STARTUPINFO si = {0};
     si.cb = sizeof(si);
-
     PROCESS_INFORMATION pi = {0};
 
-    if (CreateProcess(
-            TEXT("C:\\windows\\notepade.exe"),
+    if (CreateProcess(TEXT("C:\\windows\\notepade.exe"),
             NULL,
             NULL,
             NULL,
@@ -47,7 +45,7 @@ int main(int argc, char* argv[]) {
             NULL,
             &si,
             &pi) == FALSE) {
-        std::wcout << TEXT("CreateProcess failed ") << GetLastError() << std::endl;
+        std::cout << "CreateProcess failed " << GetLastError() << std::endl;
         return -1;
     }
 
@@ -80,18 +78,19 @@ int main(int argc, char* argv[]) {
             debugger.OnDllUnloaded(&debug_event.u.UnloadDll);
             break;
         case OUTPUT_DEBUG_STRING_EVENT:
-            debugger.OnOutputDebugString(&debug_event.u.DebugString);
+            debugger.on_output_debug_string(&debug_event.u.DebugString);
             break;
         case RIP_EVENT:
             debugger.OnRipEvent(&debug_event.u.RipInfo);
             break;
         default:
-            std::wcout << TEXT("Unknown debug event.") << std::endl;
+            std::cout << "UnKnown debug event." << std::endl;
             break;
         }
 
         if (wait_event == true) {
-            ContinueDebugEvent(debug_event.dwProcessId, debug_event.dwThreadId, DBG_CONTINUE);
+            ContinueDebugEvent(
+                debug_event.dwProcessId, debug_event.dwThreadId, DBG_CONTINUE);
 
         } else {
             break;
