@@ -68,20 +68,20 @@ int main(int argc, char* argv[]) {
             debugger.OnException(&debug_event.u.Exception);
             break;
         case EXIT_PROCESS_DEBUG_EVENT:
-            debugger.OnProcessExited(&debug_event.u.ExitProcess);
+            debugger.OnProcessExited(debug_event.u.ExitProcess);
             wait_event = false;
             break;
         case LOAD_DLL_DEBUG_EVENT:
-            debugger.OnDllLoaded(&debug_event.u.LoadDll);
+            debugger.OnDllLoaded(debug_event.u.LoadDll);
             break;
         case UNLOAD_DLL_DEBUG_EVENT:
-            debugger.OnDllUnloaded(&debug_event.u.UnloadDll);
+            debugger.OnDllUnloaded(debug_event.u.UnloadDll);
             break;
         case OUTPUT_DEBUG_STRING_EVENT:
             debugger.on_output_debug_string(&debug_event.u.DebugString);
             break;
         case RIP_EVENT:
-            debugger.OnRipEvent(&debug_event.u.RipInfo);
+            debugger.OnRipEvent(debug_event.u.RipInfo);
             break;
         default:
             std::cout << "UnKnown debug event." << std::endl;
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
 
         if (wait_event == true) {
             ContinueDebugEvent(
-                debug_event.dwProcessId, debug_event.dwThreadId, DBG_CONTINUE);
+                debug_event.dwProcessId, debug_event.dwThreadId, debugger.g_continue_status);
 
         } else {
             break;

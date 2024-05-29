@@ -138,3 +138,18 @@ ESP+--> |  Var 2  |
 - [gdb教程](https://blog.tartanllama.xyz/writing-a-linux-debugger-setup/)
 - [gdb中文教程](https://paper.seebug.org/2051/)
 - [调试器工作原理](https://abcdxyzk.github.io/blog/2013/11/29/debug-debuger-3/)
+
+## Windows
+
+三种类型：错误异常，陷阱异常，中止异常
+
+产生原因：硬件异常，软件异常
+
+1. 异常：
+   1. 程序发生异常，Windows捕获异常，这时候就要转到内核态上执行
+   2. Windows上检查是否有相关软件在调试这个异常，如果是，那么就会发送`EXCEPTION_DEBUG_EVENT`调试事件给调试器，如果 没有收到这个事件，那么就会调到第四步
+   3. 如果在调试这个事件的时候，第三个参数是`DBG_CONTINUE`，那么说明调试器已经处理了这个异常，程序继续执行，异常结束。如果第三个参数是`DBG_EXCEPTION_NOT_HANDLED`，那么调试器没有处理此异常，第四步
+   4. Windows转到用户态执行，寻找可以处理该异常的异常处理器，如果有，那么进入异常处理器中执行，根据执行的结果继续程序的执行，如果没有，转到第五步
+   5. Windows又转到内核态中执行，检查异常的程序是否被调用，如果是，则再次发送`EXCEPTION_DEBUG_EVENT`调试事件给调试器，如果还是寄了，那么调到第七步
+   6. 第二次处理异常，没有处理的话，调到第七步
+   7. 程序错误，寄了 
