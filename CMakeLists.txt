@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.22.1)
 # SET(CMAKE_C_COMPILER /usr/bin/gcc)
 # SET(CMAKE_CXX_COMPILER /usr/bin/g++)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 # 设置必须跟上面的一样，即c++17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 

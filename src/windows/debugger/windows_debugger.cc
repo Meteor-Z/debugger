@@ -7,15 +7,32 @@
 #include <memoryapi.h>
 #include <minwinbase.h>
 #include <minwindef.h>
+#include <sstream>
+#include <string>
 #include <stringapiset.h>
 #include <urlmon.h>
+#include <vector>
 #include <winnls.h>
 #include <winnt.h>
 #include <tchar.h>
 
 namespace debugger {
 
-WindowsDebugger::WindowsDebugger(const HANDLE& process) : m_process(process) {}
+void WindowsDebugger::get_command(std::vector<std::string>& command) {
+    std::string ans;
+    std::getline(std::cin, ans);
+
+    std::stringstream ssin(ans);
+    std::string temp;
+
+    while (ssin >> temp) {
+        command.push_back(temp);
+    }
+}
+WindowsDebugger::WindowsDebugger(const HANDLE& process, const HANDLE& thread,
+    const DWORD& dw_process_id, const DWORD& dw_thread_id)
+    : m_process(process), m_thread(thread), m_dw_process_id(dw_process_id),
+      m_dw_thread_id(dw_thread_id) {}
 
 void WindowsDebugger::OnProcessCreated(const CREATE_PROCESS_DEBUG_INFO* info) {
     CloseHandle(info->hFile);
@@ -80,7 +97,7 @@ void WindowsDebugger::on_output_debug_string(
     free(p_buffer);
     free(str_ans);
 
-    m_continue_status = DBG_CONTINUE;
+    g_continue_status = DBG_CONTINUE;
 }
 void WindowsDebugger::OnRipEvent(const RIP_INFO& info) {
     std::cout << "Rip Event occured" << std::endl;

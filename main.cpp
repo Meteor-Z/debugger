@@ -1,3 +1,5 @@
+#include <string>
+#include <vector>
 #if defined(__linux__)
 
 #include "sys/personality.h"
@@ -52,7 +54,16 @@ int main(int argc, char* argv[]) {
     bool wait_event = true;
     DEBUG_EVENT debug_event{}; // 调试事件
 
-    debugger::WindowsDebugger debugger{pi.hProcess};
+    debugger::WindowsDebugger debugger{pi.hProcess, pi.hThread, pi.dwProcessId, pi.dwThreadId};
+
+    while (true) {
+        std::vector<std::string> command{};
+        debugger.get_command(command);
+        if (command[0] == "s") {
+
+        }
+    }
+
 
     // 循环
     while (wait_event == true && WaitForDebugEvent(&debug_event, INFINITE)) {

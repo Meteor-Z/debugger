@@ -3,7 +3,10 @@
 #if defined(_WIN32)
 
 #include <windows.h>
+#include <minwindef.h>
 #include <wingdi.h>
+#include <string>
+#include <vector>
 #include <winnt.h>
 #include <minwinbase.h>
 
@@ -18,8 +21,11 @@ public:
     WindowsDebugger& operator=(const WindowsDebugger&) = delete;
     WindowsDebugger& operator=(WindowsDebugger&&) = delete;
 
-    WindowsDebugger(const HANDLE& process);
+    WindowsDebugger(const HANDLE& process, const HANDLE& thread,
+        const DWORD& dw_process_id, const DWORD& dw_thread_id);
 
+    void get_command(std::vector<std::string>& command);
+    void start_debug();
     /**
      * @brief 创建项目进程的时候触发的断点
      *
@@ -67,9 +73,12 @@ public:
     void OnDllUnloaded(const UNLOAD_DLL_DEBUG_INFO& info);
 
 public:
-    static inline DWORD g_continue_status{
+    inline static DWORD g_continue_status{
         DBG_EXCEPTION_NOT_HANDLED}; ///< 当前调试的进度，因为调试的时候是分两次的
 private:
     HANDLE m_process{}; ///< 调试进程的 process
+    HANDLE m_thread{};
+    DWORD m_dw_process_id{};
+    DWORD m_dw_thread_id{};
 };
 } // namespace debugger
