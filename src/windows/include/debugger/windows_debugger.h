@@ -25,7 +25,15 @@ public:
         const DWORD& dw_process_id, const DWORD& dw_thread_id);
 
     void get_command(std::vector<std::string>& command);
-    void start_debug();
+    
+    /**
+     * @brief 是否开始 debug?
+     * 
+     * @param command 命令
+     * @return true 表示启动
+     * @return false 无法正常启动，直接退出程序
+     */
+    bool start_debug(const std::string& command);
     /**
      * @brief 创建项目进程的时候触发的断点
      *
@@ -71,6 +79,14 @@ public:
     void OnRipEvent(const RIP_INFO& info);
     void OnDllLoaded(const LOAD_DLL_DEBUG_INFO& info);
     void OnDllUnloaded(const UNLOAD_DLL_DEBUG_INFO& info);
+
+    /**
+     * @brief 继续进行调试这个进程
+     * 
+     */
+    void on_continue(const std::vector<std::string>& command);
+
+    void handle_excetion(bool handle);
 
 public:
     inline static DWORD g_continue_status{

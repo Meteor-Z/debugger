@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <winerror.h>
 #if defined(__linux__)
 
 #include "sys/personality.h"
@@ -54,16 +55,18 @@ int main(int argc, char* argv[]) {
     bool wait_event = true;
     DEBUG_EVENT debug_event{}; // 调试事件
 
-    debugger::WindowsDebugger debugger{pi.hProcess, pi.hThread, pi.dwProcessId, pi.dwThreadId};
+    debugger::WindowsDebugger debugger{
+        pi.hProcess, pi.hThread, pi.dwProcessId, pi.dwThreadId};
 
     while (true) {
         std::vector<std::string> command{};
         debugger.get_command(command);
-        if (command[0] == "s") {
-
+        if (command[0] == "q") {
+            break;
+        } else if (command[0] == "g") { // 开始调试
+            debugger.continue();   
         }
     }
-
 
     // 循环
     while (wait_event == true && WaitForDebugEvent(&debug_event, INFINITE)) {
@@ -100,8 +103,9 @@ int main(int argc, char* argv[]) {
         }
 
         if (wait_event == true) {
-            ContinueDebugEvent(
-                debug_event.dwProcessId, debug_event.dwThreadId, debugger.g_continue_status);
+            ContinueDebugEvent(debug_event.dwProcessId,
+                debug_event.dwThreadId,
+                debugger.g_continue_status);
 
         } else {
             break;

@@ -15,6 +15,7 @@
 #include <winnls.h>
 #include <winnt.h>
 #include <tchar.h>
+#include <windows.h>
 
 namespace debugger {
 
@@ -57,6 +58,7 @@ void WindowsDebugger::OnException(const EXCEPTION_DEBUG_INFO* info) {
     if (info->dwFirstChance == true) {
         std::cout << "First Chance" << std::endl;
         g_continue_status = DBG_EXCEPTION_NOT_HANDLED;
+
     } else {
         std::cout << "Second Chance" << std::endl;
         g_continue_status = DBG_CONTINUE;
@@ -108,5 +110,30 @@ void WindowsDebugger::OnDllLoaded(const LOAD_DLL_DEBUG_INFO& info) {
 }
 void WindowsDebugger::OnDllUnloaded(const UNLOAD_DLL_DEBUG_INFO& info) {
     std::cout << "A dll was unloaded." << std::endl;
+}
+
+bool WindowsDebugger::start_debug(const std::string& command) {
+    if (command.size() < 2) {
+        return false;
+    } else {
+    }
+}
+void WindowsDebugger::on_continue(const std::vector<std::string>& command) {
+    if (command.size() < 2) {
+        handle_excetion(false);
+        return;
+    }
+
+    if (command[1] == "c") {
+        handle_excetion(true);
+        continue_debug_session();
+    }
+}
+void WindowsDebugger::handle_excetion(bool handed) {
+    if (handed) {
+        g_continue_status = DBG_CONTINUE;
+    } else {
+        g_continue_status = DBG_EXCEPTION_NOT_HANDLED;
+    }
 }
 } // namespace debugger
